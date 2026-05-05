@@ -203,25 +203,60 @@ with tab_normal:
         message(human, is_user=True, key=f"norm_user_{i}")
     
     # Normal chat input
-    if prompt := st.chat_input("Ask a general question..."):
-        st.session_state.normal_messages.append((prompt, ""))
-        with st.spinner("Thinking..."):
-            # Simple system prompt for general assistant
-            system_msg = SystemMessage(content="""
-                    You are a strict document-based assistant.
+    # if prompt := st.chat_input("Ask a general question..."):
+    #     st.session_state.normal_messages.append((prompt, ""))
+    #     with st.spinner("Thinking..."):
+    #         # Simple system prompt for general assistant
+    #         system_msg = SystemMessage(content="""
+    #                 You are a strict document-based assistant.
 
-                    Rules:
-                    1. Answer ONLY using the provided context.
-                    2. If the answer is not explicitly in the context, say: "I don't know based on the provided document."
-                    3. Do NOT guess or add external knowledge.
-                    4. Keep answers clear and precise.
-                    5. Do NOT mention sources.
-                    """)
-            messages = [system_msg]
-            for human, ai in st.session_state.normal_messages[:-1]:  # exclude the latest empty one
-                messages.append(HumanMessage(content=human))
-                messages.append(AIMessage(content=ai))
-            messages.append(HumanMessage(content=prompt))
-            response = llm.invoke(messages).content
-        st.session_state.normal_messages[-1] = (prompt, response)
-        st.rerun()
+    #                 Rules:
+    #                 1. Answer ONLY using the provided context.
+    #                 2. If the answer is not explicitly in the context, say: "I don't know based on the provided document."
+    #                 3. Do NOT guess or add external knowledge.
+    #                 4. Keep answers clear and precise.
+    #                 5. Do NOT mention sources.
+    #                 """)
+    #         messages = [system_msg]
+    #         for human, ai in st.session_state.normal_messages[:-1]:  # exclude the latest empty one
+    #             messages.append(HumanMessage(content=human))
+    #             messages.append(AIMessage(content=ai))
+    #         messages.append(HumanMessage(content=prompt))
+    #         response = llm.invoke(messages).content
+    #     st.session_state.normal_messages[-1] = (prompt, response)
+    #     st.rerun()
+
+
+
+
+
+
+if prompt := st.chat_input("Ask a general question..."):
+        st.session_state.normal_messages.append((prompt, ""))
+
+    with st.spinner("Thinking..."):
+        # 🔥 Better system prompt
+        system_msg = SystemMessage(content="""
+You are a smart, helpful AI assistant.
+
+- Give accurate, clear, and complete answers
+- Use simple language unless technical detail is needed
+- If unsure, say you are not sure instead of guessing
+- Stay relevant to the question
+""")
+
+        messages = [system_msg]
+
+        # 🔥 Limit history (important fix)
+        for human, ai in st.session_state.normal_messages[-5:-1]:
+            messages.append(HumanMessage(content=human))
+            messages.append(AIMessage(content=ai))
+
+        # Latest question
+        messages.append(HumanMessage(content=prompt))
+
+        response = llm.invoke(messages).content
+
+    st.session_state.normal_messages[-1] = (prompt, response)
+    st.rerun()           
+
