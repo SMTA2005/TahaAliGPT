@@ -192,22 +192,22 @@ with tab_doc:
     else:
         st.info("📂 Upload and process documents first, then ask questions.")
 
-# ==================== NORMAL CHAT TAB (NEW) ====================
+# ==================== NORMAL CHAT TAB (FIXED) ====================
 with tab_normal:
     st.markdown("### 💬 Chat with General AI Assistant")
     st.caption("Ask me anything – from science to history, coding to daily advice. I'm like ChatGPT, Gemini, or DeepSeek.")
-    
+
     # Display normal chat history
     for i, (human, ai) in enumerate(st.session_state.normal_messages):
         message(ai, key=f"norm_ai_{i}")
         message(human, is_user=True, key=f"norm_user_{i}")
-    
-    # Normal chat input
-if prompt := st.chat_input("Ask a general question...", key="normal_input"):
-    st.session_state.normal_messages.append((prompt, ""))
 
-    with st.spinner("Thinking..."):
-        system_msg = SystemMessage(content="""
+    # Normal chat input – now properly indented inside the tab
+    if prompt := st.chat_input("Ask a general question...", key="normal_input"):
+        st.session_state.normal_messages.append((prompt, ""))
+
+        with st.spinner("Thinking..."):
+            system_msg = SystemMessage(content="""
 You are a smart, helpful AI assistant.
 
 - Give accurate, clear, and complete answers
@@ -216,16 +216,16 @@ You are a smart, helpful AI assistant.
 - Stay relevant to the question
 """)
 
-        messages = [system_msg]
+            messages = [system_msg]
 
-        # last 5 history only (important)
-        for human, ai in st.session_state.normal_messages[-5:-1]:
-            messages.append(HumanMessage(content=human))
-            messages.append(AIMessage(content=ai))
+            # last 5 history only (important)
+            for human, ai in st.session_state.normal_messages[-5:-1]:
+                messages.append(HumanMessage(content=human))
+                messages.append(AIMessage(content=ai))
 
-        messages.append(HumanMessage(content=prompt))
+            messages.append(HumanMessage(content=prompt))
 
-        response = llm.invoke(messages).content
+            response = llm.invoke(messages).content
 
-    st.session_state.normal_messages[-1] = (prompt, response)
-    st.rerun()
+        st.session_state.normal_messages[-1] = (prompt, response)
+        st.rerun()
