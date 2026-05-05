@@ -148,9 +148,7 @@ Question:
     return answer
 
 # -------------------- UI WITH TWO TABS --------------------
-tab_names = ["📄 Document Chat", "💬 Normal Chat (General AI)"]
-tabs = st.tabs(tab_names)
-tab_doc, tab_normal = tabs
+tab_doc, tab_normal = st.tabs(["📄 Document Chat", "💬 Normal Chat (General AI)"])
 
 # ==================== DOCUMENT CHAT TAB (UNCHANGED) ====================
 with tab_doc:
@@ -180,7 +178,7 @@ with tab_doc:
     
     # Input
     if st.session_state.doc_vectorstore is not None:
-        if prompt := st.chat_input("Ask something about your documents..."):
+        if prompt := st.chat_input("Ask something about your documents...", key="doc_input"):
             st.session_state.doc_messages.append((prompt, ""))
             with st.spinner("Retrieving relevant information..."):
                 retriever = st.session_state.doc_vectorstore.as_retriever(
@@ -205,39 +203,10 @@ with tab_normal:
         message(human, is_user=True, key=f"norm_user_{i}")
     
     # Normal chat input
-    # if prompt := st.chat_input("Ask a general question..."):
-    #     st.session_state.normal_messages.append((prompt, ""))
-    #     with st.spinner("Thinking..."):
-    #         # Simple system prompt for general assistant
-    #         system_msg = SystemMessage(content="""
-    #                 You are a strict document-based assistant.
-
-    #                 Rules:
-    #                 1. Answer ONLY using the provided context.
-    #                 2. If the answer is not explicitly in the context, say: "I don't know based on the provided document."
-    #                 3. Do NOT guess or add external knowledge.
-    #                 4. Keep answers clear and precise.
-    #                 5. Do NOT mention sources.
-    #                 """)
-    #         messages = [system_msg]
-    #         for human, ai in st.session_state.normal_messages[:-1]:  # exclude the latest empty one
-    #             messages.append(HumanMessage(content=human))
-    #             messages.append(AIMessage(content=ai))
-    #         messages.append(HumanMessage(content=prompt))
-    #         response = llm.invoke(messages).content
-    #     st.session_state.normal_messages[-1] = (prompt, response)
-    #     st.rerun()
-
-
-
-
-
-
-if prompt := st.chat_input("Ask a general question..."):
+if prompt := st.chat_input("Ask a general question...", key="normal_input"):
     st.session_state.normal_messages.append((prompt, ""))
 
     with st.spinner("Thinking..."):
-        # 🔥 Better system prompt
         system_msg = SystemMessage(content="""
 You are a smart, helpful AI assistant.
 
@@ -249,16 +218,14 @@ You are a smart, helpful AI assistant.
 
         messages = [system_msg]
 
-        # 🔥 Limit history (important fix)
+        # last 5 history only (important)
         for human, ai in st.session_state.normal_messages[-5:-1]:
             messages.append(HumanMessage(content=human))
             messages.append(AIMessage(content=ai))
 
-        # Latest question
         messages.append(HumanMessage(content=prompt))
 
         response = llm.invoke(messages).content
 
     st.session_state.normal_messages[-1] = (prompt, response)
     st.rerun()
-
