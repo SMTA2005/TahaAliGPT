@@ -148,7 +148,7 @@ Question:
     return answer
 
 # -------------------- UI WITH TWO TABS --------------------
-tab_doc, tab_normal = st.tabs(["📄 Document Chat (RAG with Sources)", "💬 Normal Chat (General AI)"])
+tab_doc, tab_normal = st.tabs(["📄 Document Chat", "💬 Normal Chat (General AI)"])
 
 # ==================== DOCUMENT CHAT TAB (UNCHANGED) ====================
 with tab_doc:
@@ -169,7 +169,7 @@ with tab_doc:
         st.info(f"📁 Active: {', '.join(st.session_state.processed_files)}")
     
     st.markdown("---")
-    st.markdown("### 💬 Ask Questions (with documented sources)")
+    st.markdown("### 💬 Ask Question")
     
     # Display chat history
     for i, (human, ai) in enumerate(st.session_state.doc_messages):
@@ -181,7 +181,11 @@ with tab_doc:
         if prompt := st.chat_input("Ask something about your documents..."):
             st.session_state.doc_messages.append((prompt, ""))
             with st.spinner("Retrieving relevant information..."):
-                retrieved_docs = st.session_state.doc_vectorstore.similarity_search(prompt, k=5)
+                retriever = st.session_state.doc_vectorstore.as_retriever(
+                    search_type="mmr",
+                    search_kwargs={"k": 7, "fetch_k": 20}
+                )
+                retrieved_docs = retriever.invoke(prompt)
                 answer = rag_answer(prompt, retrieved_docs)
             st.session_state.doc_messages[-1] = (prompt, answer)
             st.rerun()
@@ -203,7 +207,16 @@ with tab_normal:
         st.session_state.normal_messages.append((prompt, ""))
         with st.spinner("Thinking..."):
             # Simple system prompt for general assistant
-            system_msg = SystemMessage(content="You are a helpful, knowledgeable AI assistant. Answer clearly and concisely. You have broad knowledge about the world, science, technology, history, and everyday topics.")
+            system_msg = SystemMessage(content="""
+                    You are a strict document-based assistant.
+
+                    Rules:
+                    1. Answer ONLY using the provided context.
+                    2. If the answer is not explicitly in the context, say: "I don't know based on the provided document."
+                    3. Do NOT guess or add external knowledge.
+                    4. Keep answers clear and precise.
+                    5. Do NOT mention sources.
+                    """)
             messages = [system_msg]
             for human, ai in st.session_state.normal_messages[:-1]:  # exclude the latest empty one
                 messages.append(HumanMessage(content=human))
