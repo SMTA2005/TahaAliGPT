@@ -7,8 +7,9 @@ from io import BytesIO
 from PIL import Image
 import fitz
 from langchain_groq import ChatGroq
-from langchain.schema import SystemMessage, HumanMessage, AIMessage, Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
