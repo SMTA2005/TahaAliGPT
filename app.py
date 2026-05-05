@@ -148,7 +148,9 @@ Question:
     return answer
 
 # -------------------- UI WITH TWO TABS --------------------
-tab_doc, tab_normal = st.tabs(["📄 Document Chat", "💬 Normal Chat (General AI)"])
+tab_names = ["📄 Document Chat", "💬 Normal Chat (General AI)"]
+tabs = st.tabs(tab_names)
+tab_doc, tab_normal = tabs
 
 # ==================== DOCUMENT CHAT TAB (UNCHANGED) ====================
 with tab_doc:
