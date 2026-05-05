@@ -1,0 +1,10 @@
+streamlit
+streamlit-chat
+requests
+pillow
+pymupdf
+langchain
+langchain-groq
+langchain-community
+faiss-cpu
+sentence-transformers
