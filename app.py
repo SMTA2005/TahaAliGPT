@@ -232,7 +232,7 @@ with tab_normal:
 
 
 if prompt := st.chat_input("Ask a general question..."):
-        st.session_state.normal_messages.append((prompt, ""))
+    st.session_state.normal_messages.append((prompt, ""))
 
     with st.spinner("Thinking..."):
         # 🔥 Better system prompt
@@ -258,5 +258,5 @@ You are a smart, helpful AI assistant.
         response = llm.invoke(messages).content
 
     st.session_state.normal_messages[-1] = (prompt, response)
-    st.rerun()           
+    st.rerun()
 
