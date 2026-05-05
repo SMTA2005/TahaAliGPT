@@ -138,7 +138,7 @@ Context:
         messages.append(AIMessage(content=ai))
     messages.append(HumanMessage(content=query))
     
-    response = llm(messages).content
+    response = llm.invoke(messages).content
     
     # Simply return the answer without any source lines
     # Remove any accidental number references just in case
@@ -207,6 +207,6 @@ with tab_normal:
                 messages.append(HumanMessage(content=human))
                 messages.append(AIMessage(content=ai))
             messages.append(HumanMessage(content=prompt))
-            response = llm(messages).content
+            response = llm.invoke(messages).content
         st.session_state.normal_messages[-1] = (prompt, response)
         st.rerun()
