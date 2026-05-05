@@ -148,7 +148,7 @@ Question:
     return answer
 
 # -------------------- UI WITH TWO TABS --------------------
-tab_doc, tab_normal = st.tabs(["📄 Document Chat", "💬 Normal Chat (General AI)"])
+tab_doc, tab_normal = st.tabs(["📄 Document Chat (RAG with Sources)", "💬 Normal Chat (General AI)"])
 
 # ==================== DOCUMENT CHAT TAB (UNCHANGED) ====================
 with tab_doc:
@@ -169,7 +169,7 @@ with tab_doc:
         st.info(f"📁 Active: {', '.join(st.session_state.processed_files)}")
     
     st.markdown("---")
-    st.markdown("### 💬 Ask Questions")
+    st.markdown("### 💬 Ask Questions (with documented sources)")
     
     # Display chat history
     for i, (human, ai) in enumerate(st.session_state.doc_messages):
