@@ -7,9 +7,8 @@ from io import BytesIO
 from PIL import Image
 import fitz
 from langchain_groq import ChatGroq
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.schema import SystemMessage, HumanMessage, AIMessage, Document
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
@@ -138,7 +137,7 @@ Context:
         messages.append(AIMessage(content=ai))
     messages.append(HumanMessage(content=query))
     
-    response = llm.invoke(messages).content
+    response = llm(messages).content
     
     # Simply return the answer without any source lines
     # Remove any accidental number references just in case
@@ -167,7 +166,7 @@ with tab_doc:
         st.info(f"📁 Active: {', '.join(st.session_state.processed_files)}")
     
     st.markdown("---")
-    st.markdown("### 💬 Ask Questions")
+    st.markdown("### 💬 Ask Questions (with documented sources)")
     
     # Display chat history
     for i, (human, ai) in enumerate(st.session_state.doc_messages):
@@ -189,7 +188,7 @@ with tab_doc:
 # ==================== NORMAL CHAT TAB (NEW) ====================
 with tab_normal:
     st.markdown("### 💬 Chat with General AI Assistant")
-    st.caption("Ask me anything")
+    st.caption("Ask me anything – from science to history, coding to daily advice. I'm like ChatGPT, Gemini, or DeepSeek.")
     
     # Display normal chat history
     for i, (human, ai) in enumerate(st.session_state.normal_messages):
@@ -207,6 +206,6 @@ with tab_normal:
                 messages.append(HumanMessage(content=human))
                 messages.append(AIMessage(content=ai))
             messages.append(HumanMessage(content=prompt))
-            response = llm.invoke(messages).content
+            response = llm(messages).content
         st.session_state.normal_messages[-1] = (prompt, response)
         st.rerun()
