@@ -112,36 +112,38 @@ def process_uploaded_files(uploaded_files):
 
 # -------------------- RAG: ANSWER WITHOUT SOURCES (MODIFIED) --------------------
 def rag_answer(query: str, retrieved_docs: list) -> str:
-    """
-    Answer based on retrieved documents, but DO NOT show any source citations.
-    """
     if not retrieved_docs:
         return "No relevant document chunks found."
     
-    # Build numbered context (kept for LLM understanding, but we won't reveal sources)
+    # Build context
     context_parts = []
     for i, doc in enumerate(retrieved_docs, 1):
         context_parts.append(f"[{i}] {doc.page_content}")
     context = "\n\n".join(context_parts)
     
-    system_prompt = f"""You are a document assistant. Use ONLY the provided context to answer the user's question.
-Answer clearly without mentioning source numbers or page numbers.
-Do not include any references in your answer.
-
-Context:
-{context}
-"""
-
-    messages = [SystemMessage(content=system_prompt)]
+    # ✅ FIXED PROMPT STRUCTURE
+    messages = [
+        SystemMessage(content="You are a document assistant. Answer ONLY from the given context. Do not make up information. Do not mention sources.")
+    ]
+    
+    # Chat history (same as before)
     for human, ai in st.session_state.doc_messages[-5:]:
         messages.append(HumanMessage(content=human))
         messages.append(AIMessage(content=ai))
-    messages.append(HumanMessage(content=query))
     
+    # ✅ Context + Question together
+    messages.append(HumanMessage(content=f"""
+Context:
+{context}
+
+Question:
+{query}
+"""))
+    
+    # ✅ invoke fix
     response = llm.invoke(messages).content
     
-    # Simply return the answer without any source lines
-    # Remove any accidental number references just in case
+    # Clean output
     answer = re.sub(r'\n?\s*\[(\d+(?:,\s*\d+)*)\]\s*$', '', response).strip()
     return answer
 
